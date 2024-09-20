@@ -19,7 +19,20 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.33</version> <!-- 使用最新版本驱动 -->
         </dependency>
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>5.5.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.11.0</version>
+        </dependency>
+
+
     </dependencies>
+
     <build>
         <plugins>
             <plugin>

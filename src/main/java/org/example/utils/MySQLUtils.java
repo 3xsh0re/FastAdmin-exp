@@ -1,10 +1,10 @@
-package org.example;
+package org.example.utils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class MySQLTest {
+public class MySQLUtils {
     public static Connection TestConnect(String ip, String port, String database, String username, String password) {
         if (port == null || port.equals(""))
             port = "3306";

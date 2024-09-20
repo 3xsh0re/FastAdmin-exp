@@ -1,14 +1,18 @@
 package org.example;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
+import org.example.utils.ArgsUtils;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        CmdArgs.getArgs(args);
-        FuzzPoc fuzzPoc = new FuzzPoc(CmdArgs.targetURL);
-        fuzzPoc.Exp();
+        ArgsUtils.getArgs(args);
+        if (!ArgsUtils.ifRead) {
+            Poc poc = new Poc(ArgsUtils.targetURL);
+            poc.Exp();
+        }else {
+            // 从CSV文件中读取urls进行Fuzz
+            Poc poc = new Poc();
+            CSVFuzz.Fuzz(poc);
+        }
     }
 
 }

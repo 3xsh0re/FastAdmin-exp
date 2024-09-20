@@ -1,21 +1,21 @@
-package org.example;
+package org.example.utils;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 
 // 用于解析命令行中的参数
-public class CmdArgs {
+public class ArgsUtils {
+    public static boolean ifRead = false;
     @Parameter(names = {"-u", "--url"}, description = "hacking url")
     public static String targetURL;
-    @Parameter(names = {"-r", "--read"}, description = "read urls from .txt")
+    @Parameter(names = {"-r", "--read"}, description = "read urls from .csv")
     public static String fileName = "";
-    public static boolean ifRead = false;
     @Parameter(names = {"-h", "--help"}, help = true, description = "the tool's usage")
     private static boolean helpInfo = false;
 
     public static void getArgs(String[] args) {
         JCommander jc = JCommander.newBuilder()
-                .addObject(new CmdArgs())
+                .addObject(new ArgsUtils())
                 .build();
         System.out.println("\033[34;1m" + "___________                __     _____       .___      .__                                        \n" +
                 "\\_   _____/____    _______/  |_  /  _  \\    __| _/_____ |__| ____             ____ ___  _________  \n" +
@@ -33,7 +33,7 @@ public class CmdArgs {
                 helpInfo = true;
             }
         }
-        if (!fileName.equals("")){
+        if (!fileName.isEmpty()){
             ifRead = true;
         }
         if (helpInfo){
