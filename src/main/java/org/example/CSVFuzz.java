@@ -30,10 +30,9 @@ public class CSVFuzz {
                 for (int i = 1; i < allData.size(); i++) {
                     String[] row = allData.get(i);
                     if (row.length > urlColumnIndex) {
-                        String url = row[urlColumnIndex];
+                        String url = row[urlColumnIndex] + "/";
                         System.out.println("\033[32;1m[+]--------------------------------------------------\033[0m");
                         System.out.println("\033[32;1m[+]FuzzUrl:" + url + "\033[0m");
-                        poc.setFuzzUrl(url+"/");
                         poc.Exp();
                     }
                 }
