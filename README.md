@@ -18,4 +18,5 @@ java -jar FastAdmin-exp.jar -r FastAdmin.csv
 ![image](https://github.com/user-attachments/assets/d7fa9ff7-66fa-4544-ae60-861ef031319a)
 
 #### Fuzz成果
+注：下图均为合法渗透测试内容,已修复
 ![image](https://github.com/user-attachments/assets/b20745a6-6a89-4b2a-ab91-aac870807d38)
