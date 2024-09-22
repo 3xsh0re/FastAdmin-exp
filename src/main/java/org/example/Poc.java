@@ -8,7 +8,6 @@ import org.example.utils.OkHttpUtils;
 import java.net.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.SQLClientInfoException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,8 +45,9 @@ public class Poc {
         }
     }
 
-    public Poc() throws Exception{
+    public Poc() {
     }
+
     public Poc(String url) throws Exception {
         this.url = url;
         // 定义用于匹配域名或IP地址的正则表达式
@@ -68,7 +68,7 @@ public class Poc {
             // 发送请求并获取响应
             Response response = OkHttpUtils.sendRequest(url);
             if (response.code() == 200) {
-                System.out.println("\033[32;1m[+]Target:" + url + " is alive" + "\033[0m");
+                System.out.println("\033[32;1m[+]Target:" + url + " is alive,IP is " + this.ip + "\033[0m");
                 return true;
             }
         }catch (Exception ignored){
@@ -163,7 +163,6 @@ public class Poc {
             else {
                 if (sqlMap.get("database") != null && sqlMap.get("username") != null && sqlMap.get("username") != null){
                     System.out.println("\033[34;1m[-]" + "建议手工测试!" + "\033[0m");
-                    System.out.println("\033[34;1m[-]" + "TargetIP:" + this.ip + "\033[0m");
                     return;
                 }
                 System.out.println("\033[31;1m[-]" + "目标数据库拒绝远程连接!" + "\033[0m");
