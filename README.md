@@ -5,7 +5,8 @@
 ```shell
 java -jar FastAdmin-exp.jar -u http://target.com/
 ```
-![image](https://github.com/user-attachments/assets/d333cb67-a379-4f41-87b2-944c531b0494)
+![image](https://github.com/user-attachments/assets/6a153f17-3897-429f-9c8b-1b86ddf8f8a2)
+
 ![image](https://github.com/user-attachments/assets/c26e1855-022b-4f65-a0c5-5d4422085959)
 ### 目标一键Shell
 **对单个目标Fuzz时，自动对存在漏洞的目标进行一键Shell，在网站根路径下生成api.php文件，连接密码随机生成**
