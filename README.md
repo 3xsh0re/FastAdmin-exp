@@ -16,11 +16,13 @@ java -jar FastAdmin-exp.jar -u http://target.com/
 ```shell
 java -jar FastAdmin-exp.jar -r FastAdmin.csv
 ```
-![image](https://github.com/user-attachments/assets/d7fa9ff7-66fa-4544-ae60-861ef031319a)
+![image](https://github.com/user-attachments/assets/63b8117a-0349-4efe-be7b-36bcdf69e9f4)
+
 
 ### Fuzz成果
 注：下图均为合法渗透测试内容,已修复
-![image](https://github.com/user-attachments/assets/b20745a6-6a89-4b2a-ab91-aac870807d38)
+![image](https://github.com/user-attachments/assets/4ed3c562-0f96-4c6a-8c44-825a7a76b965)
+
 
 # 免责申明
 该工具仅用于安全自查检测
