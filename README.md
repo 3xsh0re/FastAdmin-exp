@@ -1,6 +1,6 @@
 # FastAdmin-exp
 **运行需要Java>=11**
-### 目前支持任意文件读取漏洞的检测
+### 目前支持任意文件读取漏洞的检测,FastAdmin版本 < 1.3.4.20220530
 #### 单个目标检测：
 ```shell
 java -jar FastAdmin-exp.jar -u http://target.com/
