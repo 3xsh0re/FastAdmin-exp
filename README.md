@@ -12,6 +12,7 @@ java -jar FastAdmin-exp.jar -u http://target.com/
 ![image](https://github.com/user-attachments/assets/26711f47-6965-4c5b-a9f0-0a9c6d684cef)
 ![Snipaste_2024-09-19_21-29-27](https://github.com/user-attachments/assets/2b672fcc-2cb3-4a29-a1be-f289da4239c9)
 ### 进行批量检测
+**读取csv文件中以url为开头的列**
 ```shell
 java -jar FastAdmin-exp.jar -r FastAdmin.csv
 ```
