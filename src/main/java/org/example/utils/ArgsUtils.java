@@ -27,10 +27,6 @@ public class ArgsUtils {
         }catch(Exception e){
             System.out.println("\033[31;1m[-]" + "请输入正确的参数!" + "\033[0m");
         }
-        if (targetURL.isEmpty()&&fileName.isEmpty()){
-            System.out.println("\033[31;1m[-]" + "请输入正确的参数!" + "\033[0m");
-        }
-
         if (!fileName.isEmpty()){
             ifRead = true;
         }
