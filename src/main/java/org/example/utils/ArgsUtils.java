@@ -7,12 +7,9 @@ import com.beust.jcommander.Parameter;
 public class ArgsUtils {
     public static boolean ifRead = false;
     @Parameter(names = {"-u", "--url"}, description = "hacking url")
-    public static String targetURL;
+    public static String targetURL = "";
     @Parameter(names = {"-r", "--read"}, description = "read urls from .csv")
     public static String fileName = "";
-    @Parameter(names = {"-h", "--help"}, help = true, description = "the tool's usage")
-    private static boolean helpInfo = false;
-
     public static void getArgs(String[] args) {
         JCommander jc = JCommander.newBuilder()
                 .addObject(new ArgsUtils())
@@ -28,16 +25,14 @@ public class ArgsUtils {
         try{
             jc.parse(args);
         }catch(Exception e){
-            if(!helpInfo){
-                System.out.println("\033[31;1m" +"[-]Error: " + e.getMessage() + "\033[0m");
-                helpInfo = true;
-            }
+            System.out.println("\033[31;1m[-]" + "请输入正确的参数!" + "\033[0m");
         }
+        if (targetURL.isEmpty()&&fileName.isEmpty()){
+            System.out.println("\033[31;1m[-]" + "请输入正确的参数!" + "\033[0m");
+        }
+
         if (!fileName.isEmpty()){
             ifRead = true;
-        }
-        if (helpInfo){
-            System.out.println("\033[32;1m" +"" + "\033[0m");
         }
     }
 
